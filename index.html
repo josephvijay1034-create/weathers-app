@@ -10,10 +10,7 @@ import {
 const firebaseConfig = {
   apiKey: "AIzaSyCIUPy_kDhs0Qv8dHdz42REsLjGqUJbM04",
   authDomain: "iot-with-c-program-8460e.firebaseapp.com",
-
-  // Inga unga actual Database URL-ah paste pannunga
-  databaseURL: "PASTE_YOUR_REAL_DATABASE_URL_HERE",
-
+  databaseURL: "YOUR_ACTUAL_DATABASE_URL",
   projectId: "iot-with-c-program-8460e",
   storageBucket: "iot-with-c-program-8460e.firebasestorage.app",
   messagingSenderId: "817173468979",
@@ -23,7 +20,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
 const weatherRef = ref(db, "weather");
 
 onValue(weatherRef, (snapshot) => {
@@ -32,14 +28,12 @@ onValue(weatherRef, (snapshot) => {
   if (data) {
     document.getElementById("temperature").textContent =
       data.temperature ?? "--";
-
     document.getElementById("humidity").textContent =
       data.humidity ?? "--";
-
     document.getElementById("pressure").textContent =
       data.pressure ?? "--";
   } else {
-    console.log("Firebase-la weather data innum illai.");
+    console.log("Weather data not found in Firebase.");
   }
 }, (error) => {
   console.error("Firebase connection error:", error.message);
