@@ -1,0 +1,190 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IoT Weather Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: white;
+      text-align: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a, #0369a1, #38bdf8);
+    }
+    header { padding: 28px 10px; }
+    .container { width: 92%; max-width: 950px; margin: auto; }
+    #status {
+      background: #ffffff20;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      overflow-wrap: anywhere;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 18px;
+    }
+    .card {
+      background: white;
+      color: #0f172a;
+      padding: 25px 12px;
+      border-radius: 16px;
+    }
+    .icon { font-size: 42px; }
+    .value { font-size: 34px; font-weight: bold; color: #0284c7; }
+    .unit { color: #64748b; }
+    .panel {
+      margin: 20px 0;
+      padding: 20px;
+      border-radius: 14px;
+      background: white;
+      color: #0f172a;
+      overflow-wrap: anywhere;
+    }
+    button {
+      padding: 12px 20px;
+      background: #0284c7;
+      color: white;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    footer { padding: 20px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🌦️ IoT Weather Application</h1>
+  <p>Real-Time Firebase Weather Monitoring</p>
+</header>
+
+<main class="container">
+  <div id="status">Connecting to Firebase...</div>
+
+  <section class="grid">
+    <article class="card">
+      <div class="icon">🌡️</div>
+      <h2>Temperature</h2>
+      <div class="value" id="temperature">--</div>
+      <p class="unit">°C</p>
+    </article>
+
+    <article class="card">
+      <div class="icon">💧</div>
+      <h2>Humidity</h2>
+      <div class="value" id="humidity">--</div>
+      <p class="unit">%</p>
+    </article>
+
+    <article class="card">
+      <div class="icon">🌬️</div>
+      <h2>Pressure</h2>
+      <div class="value" id="pressure">--</div>
+      <p class="unit">hPa</p>
+    </article>
+  </section>
+
+  <section class="panel">
+    <h2>📡 Sensor Information</h2>
+    <p>Connection: <strong id="connection">Waiting...</strong></p>
+    <p>Last update: <span id="lastUpdated">--</span></p>
+    <button onclick="location.reload()">Refresh Data</button>
+  </section>
+</main>
+
+<footer>IoT Weather Dashboard | Firebase Realtime Database</footer>
+
+<script type="module">
+  import { initializeApp } from
+    "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+
+  import {
+    getDatabase,
+    ref,
+    onValue
+  } from
+    "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+  // FIREBASE CONFIGURATION
+  const firebaseConfig = {
+    apiKey: "AIzaSyCIUPy_kDhs0Qv8dHdz42REsLjGqUJbM04",
+    authDomain: "iot-with-c-program-8460e.firebaseapp.com",
+
+    // Replace this with your ACTUAL Realtime Database URL
+    databaseURL: "YOUR_REALTIME_DATABASE_URL",
+
+    projectId: "iot-with-c-program-8460e",
+    storageBucket: "iot-with-c-program-8460e.firebasestorage.app",
+    messagingSenderId: "817173468979",
+    appId: "1:817173468979:web:dc315685ba87884fa09046",
+    measurementId: "G-W2XEJ1HW0V"
+  };
+
+  const statusEl = document.getElementById("status");
+  const connectionEl = document.getElementById("connection");
+
+  function showError(message) {
+    statusEl.textContent = message;
+    connectionEl.textContent = "Not connected";
+  }
+
+  try {
+    if (
+      !firebaseConfig.databaseURL ||
+      firebaseConfig.databaseURL === "YOUR_REALTIME_DATABASE_URL"
+    ) {
+      throw new Error(
+        "Firebase Database URL missing. Add your actual Realtime Database URL."
+      );
+    }
+
+    // INITIALIZE FIREBASE
+    const app = initializeApp(firebaseConfig);
+
+    // CONNECT TO REALTIME DATABASE
+    const db = getDatabase(app);
+
+    // READ DATA FROM /weather
+    const weatherRef = ref(db, "weather");
+
+    onValue(weatherRef, (snapshot) => {
+      const data = snapshot.val();
+
+      if (data === null) {
+        statusEl.textContent =
+          "Firebase connected. No data found at /weather.";
+        connectionEl.textContent = "Connected";
+        return;
+      }
+
+      document.getElementById("temperature").textContent =
+        data.temperature ?? "--";
+
+      document.getElementById("humidity").textContent =
+        data.humidity ?? "--";
+
+      document.getElementById("pressure").textContent =
+        data.pressure ?? "--";
+
+      statusEl.textContent = "✅ Firebase Connected — Live Data";
+      connectionEl.textContent = "Connected";
+      document.getElementById("lastUpdated").textContent =
+        new Date().toLocaleString();
+
+    }, (error) => {
+      showError("Firebase read error: " + error.message);
+    });
+
+  } catch (error) {
+    showError(error.message);
+  }
+</script>
+
+</body>
+</html>
